@@ -28,7 +28,7 @@ module "cdn" {
   aliases = ["cdn.example.com"]
 
   comment             = "My awesome CloudFront"
-  enabled             = true
+  enabled             = false
   is_ipv6_enabled     = false
   price_class         = "PriceClass_All"
   retain_on_delete    = false
