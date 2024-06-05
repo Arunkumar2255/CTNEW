@@ -22,71 +22,99 @@ provider "aws" {
   region = "us-east-1"
 }
 
-module "cdn" {
-  source = "terraform-aws-modules/cloudfront/aws"
+module "efs" {
+  source = "terraform-aws-modules/efs/aws"
 
-  aliases = ["cdn.example.com"]
+  # File system
+  name           = "example"
+  creation_token = "example-token"
+  encrypted      = true
+  kms_key_arn    = "arn:aws:kms:eu-west-1:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab"
 
-  comment             = "My awesome CloudFront"
-  enabled             = true
-  is_ipv6_enabled     = true
-  price_class         = "PriceClass_All"
-  retain_on_delete    = false
-  wait_for_deployment = false
+  # performance_mode                = "maxIO"
+  # NB! PROVISIONED TROUGHPUT MODE WITH 256 MIBPS IS EXPENSIVE ~$1500/month
+  # throughput_mode                 = "provisioned"
+  # provisioned_throughput_in_mibps = 256
 
-  create_origin_access_identity = true
-  origin_access_identities = {
-    s3_bucket_one = "My awesome CloudFront can access"
+  lifecycle_policy = {
+    transition_to_ia = "AFTER_30_DAYS"
   }
 
-  logging_config = {
-    bucket = "logs-my-cdn.s3.amazonaws.com"
-  }
-
-  origin = {
-    something = {
-      domain_name = "something.example.com"
-      custom_origin_config = {
-        http_port              = 80
-        https_port             = 443
-        origin_protocol_policy = "match-viewer"
-        origin_ssl_protocols   = ["TLSv1", "TLSv1.1", "TLSv1.2"]
-      }
-    }
-
-    s3_one = {
-      domain_name = "my-s3-bycket.s3.amazonaws.com"
-      s3_origin_config = {
-        origin_access_identity = "s3_bucket_one"
-      }
-    }
-  }
-
-  default_cache_behavior = {
-    target_origin_id           = "something"
-    viewer_protocol_policy     = "allow-all"
-
-    allowed_methods = ["GET", "HEAD", "OPTIONS"]
-    cached_methods  = ["GET", "HEAD"]
-    compress        = true
-    query_string    = true
-  }
-
-  ordered_cache_behavior = [
+  # File system policy
+  attach_policy                      = true
+  bypass_policy_lockout_safety_check = false
+  policy_statements = [
     {
-      path_pattern           = "/static/*"
-      target_origin_id       = "s3_one"
-      viewer_protocol_policy = "redirect-to-https"
-
-      allowed_methods = ["GET", "HEAD", "OPTIONS"]
-      cached_methods  = ["GET", "HEAD"]
-      compress        = true
-      query_string    = true
+      sid     = "Example"
+      actions = ["elasticfilesystem:ClientMount"]
+      principals = [
+        {
+          type        = "AWS"
+          identifiers = ["arn:aws:iam::111122223333:role/EfsReadOnly"]
+        }
+      ]
     }
   ]
 
-  viewer_certificate = {
-    acm_certificate_arn = "arn:aws:acm:us-east-1:135367859851:certificate/1032b155-22da-4ae0-9f69-e206f825458b"
-    ssl_support_method  = "sni-only"
+  # Mount targets / security group
+  mount_targets = {
+    "eu-west-1a" = {
+      subnet_id = "subnet-abcde012"
+    }
+    "eu-west-1b" = {
+      subnet_id = "subnet-bcde012a"
+    }
+    "eu-west-1c" = {
+      subnet_id = "subnet-fghi345a"
+    }
+  }
+  security_group_description = "Example EFS security group"
+  security_group_vpc_id      = "vpc-1234556abcdef"
+  security_group_rules = {
+    vpc = {
+      # relying on the defaults provdied for EFS/NFS (2049/TCP + ingress)
+      description = "NFS ingress from VPC private subnets"
+      cidr_blocks = ["10.99.3.0/24", "10.99.4.0/24", "10.99.5.0/24"]
+    }
+  }
+
+  # Access point(s)
+  access_points = {
+    posix_example = {
+      name = "posix-example"
+      posix_user = {
+        gid            = 1001
+        uid            = 1001
+        secondary_gids = [1002]
+      }
+
+      tags = {
+        Additionl = "yes"
+      }
+    }
+    root_example = {
+      root_directory = {
+        path = "/example"
+        creation_info = {
+          owner_gid   = 1001
+          owner_uid   = 1001
+          permissions = "755"
+        }
+      }
+    }
+  }
+
+  # Backup policy
+  enable_backup_policy = true
+
+  # Replication configuration
+  create_replication_configuration = true
+  replication_configuration_destination = {
+    region = "eu-west-2"
+  }
+
+  tags = {
+    Terraform   = "true"
+    Environment = "dev"
   }
 }
