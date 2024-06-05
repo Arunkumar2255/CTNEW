@@ -13,8 +13,8 @@ variable "AWS_ACCESS_KEY_ID" {
   sensitive   = true
 }
 
-variable "" {
-  description = "AWS_SECRET_ACCESS_KEY"
+variable "AWS_SECRET_ACCESS_KEY" {
+  description = "The AWS Secret access key"
   type        = string
   sensitive   = true
 }
