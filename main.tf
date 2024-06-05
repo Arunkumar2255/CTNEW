@@ -34,7 +34,7 @@ module "cdn" {
   retain_on_delete    = false
   wait_for_deployment = false
 
-  create_origin_access_identity = false
+  create_origin_access_identity = true
   origin_access_identities = {
     s3_bucket_one = "My awesome CloudFront can access"
   }
