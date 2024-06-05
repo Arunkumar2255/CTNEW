@@ -28,8 +28,8 @@ module "cdn" {
   aliases = ["cdn.example.com"]
 
   comment             = "My awesome CloudFront"
-  enabled             = false
-  is_ipv6_enabled     = false
+  enabled             = true
+  is_ipv6_enabled     = true
   price_class         = "PriceClass_All"
   retain_on_delete    = false
   wait_for_deployment = false
