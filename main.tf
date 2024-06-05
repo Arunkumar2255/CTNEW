@@ -29,7 +29,7 @@ module "cdn" {
 
   comment             = "My awesome CloudFront"
   enabled             = true
-  is_ipv6_enabled     = true
+  is_ipv6_enabled     = false
   price_class         = "PriceClass_All"
   retain_on_delete    = false
   wait_for_deployment = false
