@@ -7,14 +7,14 @@ terraform {
   }
 }
 
-variable "AWS_SECRET_KEY" {
+variable "AWS_ACCESS_KEY_ID" {
   description = "The AWS secret key"
   type        = string
   sensitive   = true
 }
 
-variable "AWS_ACCESS_KEY" {
-  description = "The AWS Access key"
+variable "" {
+  description = "AWS_SECRET_ACCESS_KEY"
   type        = string
   sensitive   = true
 }
