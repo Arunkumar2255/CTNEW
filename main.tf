@@ -36,9 +36,9 @@ module "efs" {
   # throughput_mode                 = "provisioned"
   # provisioned_throughput_in_mibps = 256
 
-  lifecycle_policy = {
-    transition_to_ia = "AFTER_30_DAYS"
-  }
+#  lifecycle_policy = {
+#    transition_to_ia = "AFTER_30_DAYS"
+#  }
 
   # File system policy
   attach_policy                      = true
