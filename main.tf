@@ -27,7 +27,7 @@ module "efs" {
 
   # File system
   name           = "example"
-#  creation_token = "example-token"
+  creation_token = "example-token"
   encrypted      = true
   kms_key_arn    = "arn:aws:kms:eu-west-1:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab"
 
@@ -113,8 +113,8 @@ module "efs" {
     region = "eu-west-2"
   }
 
-#  tags = {
- #   Terraform   = "true"
- #   Environment = "dev"
- # }
+  tags = {
+    Terraform   = "true"
+    Environment = "dev"
+  }
 }
